@@ -96,7 +96,8 @@ def GetConfigsLSTM():
                         for m in n_diff:
                             cfg = [i, ab, j, k, l, m]
                             configs.append(cfg)
-    print('Total configs: %d' % len(configs))
-    return configs
+    print('Total configs: %d' % len(configs)) 
+    return configs, ['n_ins', 'n_outs', 'n_epochs', 'n_batch', 'n_diff']
 
-RunExp('lstm', DoLSTM, GetConfigsLSTM())
+configs, configNames = GetConfigsLSTM()
+RunExp('lstm', DoLSTM, configs, configNames)

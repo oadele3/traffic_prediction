@@ -94,7 +94,8 @@ def GetConfigsCNN():
                                 cfg = [a,ab,b,c,d,e,f]
                                 configs.append(cfg)
 
-    print('Total configs: %d' % len(configs))
-    return configs
+    print('Total configs: %d' % len(configs))    
+    return configs, ['n_ins', 'n_outs', 'n_filters', 'n_kernels', 'n_epochs', 'n_batch', 'n_diff']
 
-RunExp('cnn', DoCNN, GetConfigsCNN())
+configs, configNames = GetConfigsCNN()
+RunExp('cnn', DoCNN, configs, configNames)

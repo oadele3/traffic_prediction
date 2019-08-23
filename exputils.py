@@ -6,6 +6,8 @@ import sys
 import pandas as pd
 import numpy as np
 import math
+import csv
+import time
 from sklearn.metrics import mean_squared_error
 
 def series_to_supervised(data, n_in, n_out=1):
@@ -93,26 +95,30 @@ def SaveValues(filename, best_config, best_rmse, best_t_time, best_p_time, pred)
         for val in pred:
             f1.write(str(val))
 
-def GridSearch(data, n_test, data_name, configs, alg_name, alg_fuct):
+def GridSearch(data, n_test, data_name, configs, alg_name, alg_fuct, config_names):
     print("starting "+alg_name+" grid search")
     best_rmse = float("inf")
     best_p_time = None
     best_t_time = None
     best_p_values = None
     best_config = []
-    print ("config, rmse, t_time, p_time")
-    for config in configs:
-        res = alg_fuct(data, n_test, config)
-        if res != None:
-            rmse, t_time, p_time, p_vals = res
-            print (config, rmse, t_time, p_time)
-            if rmse < best_rmse:
-                best_config, best_rmse, best_t_time, best_p_time, \
-                best_p_values = config, rmse, t_time, p_time, p_vals
-        else:
-            print(config, 'error')
-    print('*********** best result is: ', best_config, best_rmse, 
-          best_t_time, best_p_time, '**************')
+    with open('log/' + alg_name + '_' + data_name + '.csv', 'wb') as csvfile:
+        metawriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        metawriter.writerow(['rmse', 'train_time', 'predict_time'] + config_names)
+        print ("config, rmse, t_time, p_time")
+        for config in configs:
+            res = alg_fuct(data, n_test, config)
+            if res != None:
+                rmse, t_time, p_time, p_vals = res
+                print (rmse, t_time, p_time, config)
+                metawriter.writerow([rmse, t_time, p_time] + config)
+                if rmse < best_rmse:
+                    best_config, best_rmse, best_t_time, best_p_time, \
+                    best_p_values = config, rmse, t_time, p_time, p_vals
+            else:
+                print(config, 'error')
+        print('*********** best result is: ', best_config, best_rmse, 
+            best_t_time, best_p_time, '**************')
 
     pred = best_p_values
     if best_p_time:
@@ -126,7 +132,7 @@ def GridSearch(data, n_test, data_name, configs, alg_name, alg_fuct):
 
     return best_config, best_rmse, best_t_time, best_p_time, pred
 
-def RunExp(alg_name, alg_funct, alg_configs):
+def RunExp(alg_name, alg_funct, alg_configs, config_names):
     print('shortterm')
     ts_len = 385
     n_test = 85
@@ -134,12 +140,12 @@ def RunExp(alg_name, alg_funct, alg_configs):
     print('datarates')
     colname = 'ave_rate_Mbps'
     data = LoadData("15min_dataset.csv", ts_len, colname)
-    GridSearch(data, n_test, 'shortterm_datarate', alg_configs, alg_name, alg_funct)
+    GridSearch(data, n_test, 'shortterm_datarate', alg_configs, alg_name, alg_funct, config_names)
 
     print('packet counts')
     colname = 'total_pkts'
     data = LoadData("15min_dataset.csv", ts_len, colname)
-    GridSearch(data, n_test, 'shortterm_packetrate', alg_configs, alg_name, alg_funct)
+    GridSearch(data, n_test, 'shortterm_packetrate', alg_configs, alg_name, alg_funct, config_names)
 
     print('longterm')
     ts_len = 4343
@@ -148,9 +154,9 @@ def RunExp(alg_name, alg_funct, alg_configs):
     print('datarates')
     colname = 'ave_rate'
     data = LoadData("daily_datasetv2.csv", ts_len, colname)
-    GridSearch(data, n_test, 'longterm_datarate', alg_configs, alg_name, alg_funct)
+    GridSearch(data, n_test, 'longterm_datarate', alg_configs, alg_name, alg_funct, config_names)
 
     print('packet counts')
     colname = 'total_pkts'
     data = LoadData("daily_datasetv2.csv", ts_len, colname)
-    GridSearch(data, n_test, 'longterm_packetrate', alg_configs, alg_name, alg_funct)
+    GridSearch(data, n_test, 'longterm_packetrate', alg_configs, alg_name, alg_funct, config_names)

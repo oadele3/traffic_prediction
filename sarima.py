@@ -75,7 +75,7 @@ def GetConfigsSARIMA(seasonal=[0]):
                                 for m in m_params:
                                     cfg = [(p,d,q), (P,D,Q,m), t]
                                     models.append(cfg)
-    return models
+    return models, ['p_params', 'd_params', 'q_params', 't_params', 'P_params', 'D_params', 'Q_params', 'm_params']
 
-
-RunExp('sarima', DoSARIMA, GetConfigsSARIMA())
+configs, configNames = GetConfigsSARIMA()
+RunExp('sarima', DoSARIMA, configs, configNames)

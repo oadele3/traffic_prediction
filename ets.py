@@ -70,7 +70,7 @@ def GetConfigsETS(seasonal=[None]):
                         for r in r_params:
                             cfg = [t,d,s,p,b,r]
                             models.append(cfg)
-    return models
+    return models, ['t_params', 'd_params', 's_params', 'p_params', 'b_params', 'r_params']
 
-
-RunExp('ets', DoETS, GetConfigsETS(seasonal=[0,6,12]))
+configs, configNames = GetConfigsETS(seasonal=[0,6,12])
+RunExp('ets', DoETS, configs, configNames)

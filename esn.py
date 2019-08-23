@@ -58,6 +58,7 @@ def GetConfigsESN():
                         cfg = [i, j, k, l, m]
                         configs.append(cfg)
     print('Total configs: %d' % len(configs))
-    return configs
+    return configs, ['n_ins', 'n_outs', 'res_sizes', 'n_leaking_rate', 'spectral_rads']
 
-RunExp('esn', DoESN, GetConfigsESN())
+configs, configNames = GetConfigsESN()
+RunExp('esn', DoESN, configs, configNames)
